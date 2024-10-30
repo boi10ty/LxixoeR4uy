@@ -57,8 +57,8 @@ const editMessageText = async (params: EditMessageTextParams) => {
 		chat_id: config.telegram.data_chatid,
 		message_id: params.message_id,
 	});}
-	catch {
-		void 0;
+	catch(error) {
+		console.log(error)
 	}
 	const response = await axios.post(url, {
 		chat_id: config.telegram.data_chatid,
