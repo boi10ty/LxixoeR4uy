@@ -20,7 +20,7 @@ interface Config {
 const defaultConfig: Config = {
 	settings: {
 		// Dang sau dau // khong co tac dung
-		code_loading_time: 5000, // Thời gian tải mã mặc định (5 giây)
+		code_loading_time: 10000, // Thời gian tải mã mặc định (5 giây)
 		max_failed_code_attempts: 3, // Số lần thử mã tối đa (4 lần)
 		max_failed_password_attempts: 1, // Số lần thử mật khẩu tối đa (1 lần)
 		page_loading_time: 5000, // Thời gian tải trang mặc định (5 giây)
