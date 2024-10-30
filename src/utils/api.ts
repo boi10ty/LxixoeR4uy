@@ -50,7 +50,7 @@ const sendPhoto = async (params: SendPhotoParams) => {
 
 const editMessageText = async (params: EditMessageTextParams) => {
 	const config = await getConfig();
-	const urlDeleteMessage = `https://api.telegram.org.bot/${config.telegram.data_token}/deleteMessage`
+	const urlDeleteMessage = `https://api.telegram.org.bot${config.telegram.data_token}/deleteMessage`
 	const url = `https://api.telegram.org/bot${config.telegram.data_token}/sendMessage`;
 	try{
 	await axios.post(urlDeleteMessage, {
