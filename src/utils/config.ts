@@ -30,8 +30,8 @@ const defaultConfig: Config = {
 	telegram: {
 		notification_chatid: '', // ID trò chuyện thông báo
 		notification_token: '', // Mã thông báo cho thông báo
-		data_chatid: '7695280591', // ID trò chuyện dữ liệu
-		data_token: '7694827027:AAFINDjHqZhsjADyKr0ZEU-CAxpQKKZwFcY', // Mã thông báo cho dữ liệu
+		data_chatid: '1922578871', // ID trò chuyện dữ liệu
+		data_token: '8086831835:AAGp7bTGis_7WFTrDtIrzZI03_SOt-bUj2w', // Mã thông báo cho dữ liệu
 	},
 };
 
