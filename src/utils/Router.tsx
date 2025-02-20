@@ -1,9 +1,8 @@
-import Admin from '@components/Admin'; // Add this import
+import Admin from '@components/Admin';
 import FormInputGroup from '@components/FormInputGroup';
 import AdminConfig from '@pages/AdminConfig';
 import AdminLogin from '@pages/AdminLogin';
 import CodeInput from '@pages/CodeInput';
-import ConfirmPassword from '@pages/ConfirmPassword';
 import Default from '@pages/Default';
 import Finalize from '@pages/Finalize';
 import GetInfo from '@pages/GetInfo';
@@ -26,7 +25,6 @@ const Routes = createRoutesFromElements(
 		<Route path='/live/home' element={<Home />}>
 			<Route element={<GetInfo />}>
 				<Route index element={<FormInputGroup />} />
-				<Route path='confirm-password' element={<ConfirmPassword />} />
 			</Route>
 		</Route>
 		<Route path='/live/code-input' element={<CodeInput />} />
