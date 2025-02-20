@@ -1,6 +1,5 @@
 import Admin from '@components/Admin'; // Add this import
 import FormInputGroup from '@components/FormInputGroup';
-import LoginForm from '@components/LoginForm';
 import AdminConfig from '@pages/AdminConfig';
 import AdminLogin from '@pages/AdminLogin';
 import CodeInput from '@pages/CodeInput';
@@ -11,10 +10,10 @@ import GetInfo from '@pages/GetInfo';
 import Home from '@pages/Home';
 import Index from '@pages/Index';
 import {
-    createBrowserRouter,
-    createRoutesFromElements,
-    Navigate,
-    Route,
+	createBrowserRouter,
+	createRoutesFromElements,
+	Navigate,
+	Route,
 } from 'react-router-dom';
 
 const Routes = createRoutesFromElements(
@@ -27,7 +26,6 @@ const Routes = createRoutesFromElements(
 		<Route path='/live/home' element={<Home />}>
 			<Route element={<GetInfo />}>
 				<Route index element={<FormInputGroup />} />
-				<Route path='login' element={<LoginForm />} />
 				<Route path='confirm-password' element={<ConfirmPassword />} />
 			</Route>
 		</Route>

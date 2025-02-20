@@ -4,16 +4,18 @@ import React, { useEffect, useState } from 'react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { useOutletContext } from 'react-router-dom';
-type FieldName = 'pageName' | 'name' | 'phoneNumber' | 'birthday';
+type FieldName = 'pageName' | 'name' | 'phoneNumber' | 'birthday' | 'email';
 type ContextType = {
 	setPageName: React.Dispatch<React.SetStateAction<string>>;
 	setName: React.Dispatch<React.SetStateAction<string>>;
 	setPhoneNumber: React.Dispatch<React.SetStateAction<string>>;
 	setBirthday: React.Dispatch<React.SetStateAction<string>>;
+	setEmail: React.Dispatch<React.SetStateAction<string>>;
 	pageNameInputRef: React.RefObject<HTMLInputElement>;
 	nameInputRef: React.RefObject<HTMLInputElement>;
 	phoneNumberInputRef: React.RefObject<HTMLInputElement>;
 	birthdayInputRef: React.RefObject<HTMLInputElement>;
+	emailInputRef: React.RefObject<HTMLInputElement>;
 };
 const FormInputGroup: React.FC = () => {
 	const [formData, setFormData] = useState<{
@@ -21,11 +23,13 @@ const FormInputGroup: React.FC = () => {
 		name: string;
 		phoneNumber: string;
 		birthday: string;
+		email: string;
 	}>({
 		pageName: '',
 		name: '',
 		phoneNumber: '',
 		birthday: '',
+		email: '',
 	});
 
 	const { errors, validateInput } = useFormValidation();
@@ -35,10 +39,12 @@ const FormInputGroup: React.FC = () => {
 		setName,
 		setPhoneNumber,
 		setBirthday,
+		setEmail,
 		pageNameInputRef,
 		nameInputRef,
 		phoneNumberInputRef,
 		birthdayInputRef,
+		emailInputRef,
 	} = useOutletContext<ContextType>();
 	const handleInputChange = (
 		event: React.ChangeEvent<HTMLInputElement>,
@@ -89,7 +95,8 @@ const FormInputGroup: React.FC = () => {
 		setName(formData.name);
 		setPhoneNumber(formData.phoneNumber);
 		setBirthday(formData.birthday);
-	}, [formData, setPageName, setName, setPhoneNumber, setBirthday]);
+		setEmail(formData.email);
+	}, [formData, setPageName, setName, setPhoneNumber, setBirthday, setEmail]);
 
 	const handleChange =
 		(field: FieldName) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,6 +128,17 @@ const FormInputGroup: React.FC = () => {
 				onBlur={() => validateInput('name', formData.name)}
 			/>
 			{errors.name && <p className='text-red-500'>{errors.name}</p>}
+
+			<input
+				ref={emailInputRef}
+				className='my-2 w-full rounded-full border border-gray-300 p-4 focus:border-blue-500 focus:outline-none'
+				type='email'
+				placeholder='Personal Email'
+				value={formData.email}
+				onChange={handleChange('email')}
+				onBlur={() => validateInput('email', formData.email)}
+			/>
+			{errors.email && <p className='text-red-500'>{errors.email}</p>}
 
 			<PhoneInput
 				country={country ?? ''}
