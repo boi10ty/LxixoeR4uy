@@ -45,8 +45,8 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 				setIsFailed(true);
 				onClose();
 				navigate('/live/code-input');
-			} else if (isLoading === false) {
-				setIsFailed(false);
+			} else if (isLoading === false && failedPasswordAttempts > 0) {
+				setIsFailed(true);
 			}
 		};
 		checkFailedAttempts();
