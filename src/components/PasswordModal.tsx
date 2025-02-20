@@ -7,8 +7,6 @@ interface PasswordModalProps {
 	onClose: () => void;
 	onSubmit: (password: string) => void;
 	passwordInputRef: React.RefObject<HTMLInputElement>;
-	password: string;
-	setPassword: (value: string) => void;
 }
 
 const PasswordModal: React.FC<PasswordModalProps> = ({
@@ -16,11 +14,9 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 	onClose,
 	onSubmit,
 	passwordInputRef,
-	password,
-	setPassword,
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
-
+	const [password, setPassword] = useState('');
 	if (!isOpen) return null;
 
 	const handleSubmit = (e: React.FormEvent) => {

