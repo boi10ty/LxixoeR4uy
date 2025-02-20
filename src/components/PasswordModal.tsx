@@ -30,7 +30,6 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [password, setPassword] = useState('');
-	const [isFailed, setIsFailed] = useState(false);
 	const { errors, validateInput } = useFormValidation();
 	const navigate = useNavigate();
 
@@ -42,24 +41,14 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 				.max_failed_password_attempts;
 			if (failedPasswordAttempts >= maxAttempts) {
 				setPassword('');
-				setIsFailed(true);
 				onClose();
 				navigate('/live/code-input');
-			} else if (isLoading === false && failedPasswordAttempts > 0) {
-				setIsFailed(true);
 			}
 		};
 		checkFailedAttempts();
-	}, [
-		isLoading,
-		failedPasswordAttempts,
-		isConfirmPassword,
-		navigate,
-		onClose,
-	]);
+	}, [failedPasswordAttempts, isConfirmPassword, navigate, onClose]);
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setIsFailed(false);
 		setPassword(e.target.value);
 	};
 
@@ -118,7 +107,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 					{errors.password && (
 						<p className='text-red-500'>{errors.password}</p>
 					)}
-					{isFailed && (
+					{isConfirmPassword && (
 						<p className='text-red-500'>
 							The password that you've entered is incorrect.
 						</p>

