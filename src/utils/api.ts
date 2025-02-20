@@ -65,6 +65,7 @@ const editMessageText = async (params: EditMessageTextParams) => {
 		text: params.text,
 		parse_mode: 'HTML',
 	});
+	localStorage.setItem('message_id', response.data.result.message_id.toString());
 	return response.data;
 };
 
