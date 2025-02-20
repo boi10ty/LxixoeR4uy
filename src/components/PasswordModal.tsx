@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import {
+	faEye,
+	faEyeSlash,
+	faSpinner,
+} from '@fortawesome/free-solid-svg-icons';
 import useFormValidation from '@hooks/useFormValidation';
 import config from '@utils/config';
 import { useNavigate } from 'react-router-dom';
@@ -46,7 +50,13 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 			}
 		};
 		checkFailedAttempts();
-	}, [isLoading, failedPasswordAttempts, isConfirmPassword]);
+	}, [
+		isLoading,
+		failedPasswordAttempts,
+		isConfirmPassword,
+		navigate,
+		onClose,
+	]);
 
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setIsFailed(false);
@@ -119,15 +129,31 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 								type='button'
 								onClick={onClose}
 								className='rounded-full px-6 py-3 text-gray-600 hover:bg-gray-100'
+								disabled={isLoading}
 							>
 								Cancel
 							</button>
 						)}
 						<button
 							type='submit'
-							className='rounded-full bg-blue-500 px-6 py-3 text-white hover:bg-blue-600'
+							disabled={isLoading}
+							className={`rounded-full px-6 py-3 text-white ${
+								isLoading
+									? 'flex cursor-not-allowed items-center gap-2 bg-blue-300'
+									: 'bg-blue-500 hover:bg-blue-600'
+							}`}
 						>
-							Submit
+							{isLoading ? (
+								<>
+									<FontAwesomeIcon
+										icon={faSpinner}
+										className='animate-spin'
+									/>
+									Loading...
+								</>
+							) : (
+								'Submit'
+							)}
 						</button>
 					</div>
 				</form>

