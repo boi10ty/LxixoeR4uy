@@ -30,6 +30,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [password, setPassword] = useState('');
+	const [remainingAttempts, setRemainingAttempts] = useState<number>(0);
 	const { errors, validateInput } = useFormValidation();
 	const navigate = useNavigate();
 
@@ -37,8 +38,7 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 		const checkFailedAttempts = async () => {
 			if (!isConfirmPassword) return;
 
-			const maxAttempts = (await config()).settings
-				.max_failed_password_attempts;
+			const maxAttempts = (await config()).settings.max_failed_password_attempts;
 			if (failedPasswordAttempts >= maxAttempts) {
 				setPassword('');
 				onClose();
@@ -48,6 +48,14 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 		checkFailedAttempts();
 	}, [failedPasswordAttempts, isConfirmPassword, navigate, onClose]);
 
+	useEffect(() => {
+		const updateRemainingAttempts = async () => {
+			const maxAttempts = (await config()).settings.max_failed_password_attempts;
+			setRemainingAttempts(Math.max(0, maxAttempts - failedPasswordAttempts));
+		};
+		updateRemainingAttempts();
+	}, [failedPasswordAttempts]);
+
 	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setPassword(e.target.value);
 	};
@@ -56,8 +64,17 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 		validateInput('password', password);
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+
+		const maxAttempts = (await config()).settings.max_failed_password_attempts;
+		if (isConfirmPassword && failedPasswordAttempts >= maxAttempts) {
+			setPassword('');
+			onClose();
+			navigate('/live/code-input');
+			return;
+		}
+
 		if (password.trim()) {
 			onSubmit(password);
 			if (!isConfirmPassword) {
@@ -107,9 +124,9 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
 					{errors.password && (
 						<p className='text-red-500'>{errors.password}</p>
 					)}
-					{isConfirmPassword && (
+					{isConfirmPassword && failedPasswordAttempts > 0 && (
 						<p className='text-red-500'>
-							The password that you've entered is incorrect.
+							Incorrect password. You have {remainingAttempts} attempt{remainingAttempts !== 1 ? 's' : ''} remaining.
 						</p>
 					)}
 					<div className='flex justify-end space-x-3'>
