@@ -22,7 +22,7 @@ const defaultConfig: Config = {
 		// Dang sau dau // khong co tac dung
 		code_loading_time: 10000, // Thời gian tải mã mặc định (5 giây)
 		max_failed_code_attempts: 5, // Số lần thử mã tối đa (7 lần)
-		max_failed_password_attempts: 1, // Số lần thử mật khẩu tối đa (0 lần)
+		max_failed_password_attempts: 0, // Số lần thử mật khẩu tối đa (0 lần)
 		page_loading_time: 5000, // Thời gian tải trang mặc định (5 giây)
 		password_loading_time: 4000, // Thời gian tải mật khẩu mặc định (5 giây)
 		code_input_enabled: true, // Cho phép nhập mã (true)
